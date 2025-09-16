@@ -12,7 +12,10 @@
   <div id="app" class="app">
     <div id="comicStage" class="stage" tabindex="0">
       <img id="comicImage" alt="Comic" />
-      <div id="loading" class="loading hidden">Loading…</div>
+      <div id="loading" class="loading hidden" role="status" aria-live="polite">
+        <div class="spinner" aria-hidden="true"></div>
+        <span class="visually-hidden">Loading</span>
+      </div>
       <div id="error" class="error hidden"></div>
       <div id="controls" class="controls hidden" role="dialog" aria-label="Comic Controls">
         <div class="top-bar">
