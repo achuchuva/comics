@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { fetchComic, fetchRandomComic } from './api.js';
 import { useSwipe } from './useSwipe.js';
 import * as storage from './storage.js';
@@ -55,7 +55,9 @@ export function App() {
 
 
     return (
-        <div className="app" {...swipeHandlers}>
+        <div className="app" {...swipeHandlers()} style={{
+            touchAction: 'none'
+        }}>
             {comicImg &&
                 <img src={comicImg.src} width={comicImg.naturalWidth} height={comicImg.naturalHeight} alt="Comic" />
             }

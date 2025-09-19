@@ -1,58 +1,38 @@
-// A more robust useSwipe hook with mouse and touch support
-import { useState } from 'react';
+import { useDrag } from '@use-gesture/react';
 
-export const useSwipe = ({ onSwipeLeft, onSwipeRight }) => {
-    const [touchStart, setTouchStart] = useState(null);
-    const [touchEnd, setTouchEnd] = useState(null);
-
-    const minSwipeDistance = 70;
-
-    const handleTouchStart = (e) => {
-        setTouchEnd(null);
-        setTouchStart(e.targetTouches[0].clientX);
-    };
-
-    const handleTouchMove = (e) => {
-        setTouchEnd(e.targetTouches[0].clientX);
-    };
-
-    const handleTouchEnd = () => {
-        if (!touchStart || !touchEnd) return;
-        const distance = touchStart - touchEnd;
-        const isLeftSwipe = distance > minSwipeDistance;
-        const isRightSwipe = distance < -minSwipeDistance;
-
-        if (isLeftSwipe && onSwipeLeft) {
-            onSwipeLeft();
+/**
+ * A custom React hook to detect horizontal swipes using the '@use-gesture/react' library.
+ *
+ * @param {object} options - The options for the hook.
+ * @param {Function} options.onSwipeLeft - The callback function to execute on a left swipe.
+ * @param {Function} options.onSwipeRight - The callback function to execute on a right swipe.
+ * @param {number} [options.swipeThreshold] - The minimum distance in pixels for a swipe to be registered.
+ * @returns {Function} A `bind` function to be spread onto the target DOM element.
+ */
+export const useSwipe = ({ onSwipeLeft, onSwipeRight, swipeThreshold = 100 }) => {
+  const bind = useDrag(
+    ({ swipe: [swipeX], last }) => {
+      // The `swipe` state is only set at the end of the gesture (when `last` is true)
+      if (last) {
+        if (swipeX === -1 && onSwipeLeft) {
+          onSwipeLeft();
         }
-        if (isRightSwipe && onSwipeRight) {
-            onSwipeRight();
+        if (swipeX === 1 && onSwipeRight) {
+          onSwipeRight();
         }
-    };
-    
-    // Mouse event handlers
-    const handleMouseDown = (e) => {
-        setTouchEnd(null);
-        setTouchStart(e.clientX);
-    };
+      }
+    },
+    {
+      // Configuration for the drag gesture
+      axis: 'x', // We only want to track horizontal movement
+      swipe: {
+        distance: swipeThreshold, // The minimum distance for a swipe
+        velocity: 0.2, // The minimum velocity for a swipe
+        duration: 250, // The maximum duration of a swipe
+      },
+    }
+  );
 
-    const handleMouseMove = (e) => {
-        // We only care about movement if the mouse button is pressed
-        if (e.buttons === 1) { // 1 means the primary mouse button is pressed
-            setTouchEnd(e.clientX);
-        }
-    };
-
-    const handleMouseUp = () => {
-        handleTouchEnd();
-    };
-
-    return {
-        onTouchStart: handleTouchStart,
-        onTouchMove: handleTouchMove,
-        onTouchEnd: handleTouchEnd,
-        onMouseDown: handleMouseDown,
-        onMouseMove: handleMouseMove,
-        onMouseUp: handleMouseUp,
-    };
+  // Return the bind function to be used in the component
+  return bind;
 };
