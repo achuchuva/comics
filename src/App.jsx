@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import 'photoswipe/dist/photoswipe.css';
 import { fetchComic, fetchRandomComic } from './api.js';
 import { useSwipe } from './useSwipe.js';
 import * as storage from './storage.js';
