@@ -13,7 +13,7 @@ export function StarredComics({ onSelectComic, onClose }) {
         <div className="starred-comics-container">
             <div className="starred-comics-header">
                 <h2>Starred Comics</h2>
-                <button onClick={onClose} className="close-button">Close</button>
+                <button onClick={onClose} className="close-button">❌</button>
             </div>
             {favorites.length === 0 ? (
                 <p>You have no starred comics yet.</p>

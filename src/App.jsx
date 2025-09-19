@@ -1,16 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { fetchComic, fetchRandomComic } from './api.js';
 import * as storage from './storage.js';
+import { comicCodes } from './constants.js';
 import { StarredComics } from './StarredComics.jsx';
-
-const comicCodes = [
-    { name: 'Garfield', code: 'garfield' },
-    { name: 'Calvin and Hobbes', code: 'calvinandhobbes' },
-    { name: 'Pearls Before Swine', code: 'pearlsbeforeswine' },
-    { name: 'Peanuts', code: 'peanuts' },
-    { name: 'Dilbert', code: 'dilbert' },
-    { name: 'The Far Side', code: 'thefarside' },
-]
+import { SearchableSelect } from './SearchableSelect.jsx';
 
 export function App() {
     const [date, setDate] = useState(new Date(storage.loadLastState().date) || new Date());
@@ -30,6 +23,12 @@ export function App() {
 
                 const img = new Image();
                 img.onload = () => {
+                    const comicDate = new Date(comic.date);
+                    if (comicDate.toDateString() !== date.toDateString()) {
+                        setDate(comicDate);
+                        storage.saveLastState({ comic: comicCode, date: comic.date });
+                    }
+
                     setComicImg(img);
                     setIsStarred(storage.isFavorited(comicCode, date.toISOString().split('T')[0]));
                     setLoading(false);
@@ -119,23 +118,23 @@ export function App() {
                 </div>
             }
             <br />
-            <button onClick={() => previousComic()}>⬅️</button>
+            <button class="wide" onClick={() => previousComic()}>⬅️</button>
             <button onClick={() => randomComic()}>🎲</button>
-            <button onClick={() => nextComic()}>➡️</button>
+            <button class="wide" onClick={() => nextComic()}>➡️</button>
             <button onClick={toggleFavorite}>{isStarred ? '⭐' : '☆'}</button>
             <button onClick={() => setShowStarred(true)}>Starred</button>
             <input type="date" value={date.toISOString().split('T')[0]} onChange={(e) => {
                 setDate(new Date(e.target.value));
                 storage.saveLastState({ comic: comicCode, date: e.target.value });
             }} />
-            <select value={comicCode} onChange={(e) => {
-                setComicCode(e.target.value);
-                storage.saveLastState({ comic: e.target.value, date: date.toISOString().split('T')[0] });
-            }}>
-                {comicCodes.map(comic => (
-                    <option key={comic.code} value={comic.code}>{comic.name}</option>
-                ))}
-            </select>
+            <SearchableSelect
+                options={comicCodes}
+                value={comicCode}
+                onChange={(newCode) => {
+                    setComicCode(newCode);
+                    storage.saveLastState({ comic: newCode, date: date.toISOString().split('T')[0] });
+                }}
+            />
         </div>
     );
 }
