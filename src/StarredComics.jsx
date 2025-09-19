@@ -1,12 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as storage from './storage.js';
 import { ComicPreview } from './ComicPreview.jsx';
 
 export function StarredComics({ onSelectComic, onClose }) {
-    const favorites = storage.getFavorites();
+    const [favorites, setFavorites] = useState(storage.getFavorites());
 
     const handleComicClick = (fav) => {
         onSelectComic(fav.code, fav.date);
+    };
+
+    const handleUnstar = (e, favToRemove) => {
+        e.stopPropagation();
+        const updatedFavorites = favorites.filter(fav => !(fav.code === favToRemove.code && fav.date === favToRemove.date));
+        storage.setFavorites(updatedFavorites);
+        setFavorites(updatedFavorites);
     };
 
     return (
@@ -21,6 +28,7 @@ export function StarredComics({ onSelectComic, onClose }) {
                 <div className="starred-grid">
                     {favorites.map((fav, index) => (
                         <div key={index} className="starred-item" onClick={() => handleComicClick(fav)}>
+                            <button className="unstar-button" onClick={(e) => handleUnstar(e, fav)}>⭐</button>
                             <ComicPreview code={fav.code} date={fav.date} />
                             <span className="comic-name">{fav.code}</span>
                             <span className="comic-date">{fav.date}</span>
